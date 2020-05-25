@@ -10,6 +10,27 @@ https://docs.djangoproject.com/en/2.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
+#查看美多商城的导包路径
+import sys
+#查看美多商城的导包路径
+# print(sys.path)
+"""
+['/home/ubuntu/Desktop/meiduo_project_0417/meiduo_mall',
+ '/home/ubuntu/software/pycharm-2019.1.3/helpers/pydev', 
+ '/home/ubuntu/Desktop/meiduo_project_0417', 
+ '/home/ubuntu/software/pycharm-2019.1.3/helpers/pycharm_display', 
+ /home/ubuntu/software/pycharm-2019.1.3/helpers/third_party/thriftpy', 
+ '/home/ubuntu/software/pycharm-2019.1.3/helpers/pydev', 
+ '/home/ubuntu/.PyCharm2019.1/system/cythonExtensions',
+  '/home/ubuntu/Desktop/meiduo_project_0417/meiduo_mall', 
+  '/home/ubuntu/.virtualenvs/py_django/lib/python36.zip',
+   '/home/ubuntu/.virtualenvs/py_django/lib/python3.6', 
+   '/home/ubuntu/.virtualenvs/py_django/lib/python3.6/lib-dynload', 
+   '/usr/lib/python3.6', 
+   '/home/ubuntu/.virtualenvs/py_django/lib/python3.6/site-packages',
+    '/home/ubuntu/software/pycharm-2019.1.3/helpers/pycharm_matplotlib_backend']
+/home/ubuntu/Desktop/meiduo_project_0417/meiduo_mall/meiduo_mall
+"""
 
 import os
 
@@ -27,7 +48,7 @@ SECRET_KEY = 'j+@i4lrx47j5$i^lc9#qbq%u!-907nawsl7nsp(6h%0ccu_k01'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -39,6 +60,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'apps.users',#用户模块
 ]
 
 MIDDLEWARE = [
@@ -78,7 +101,7 @@ WSGI_APPLICATION = 'meiduo_mall.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # 数据库引擎
-        'HOST': '192.168.145.173', # 数据库主机
+        'HOST': '192.168.145.179', # 数据库主机
         'PORT': 3306, # 数据库端口
         'USER': 'itcast_0417', # 数据库用户名
         'PASSWORD': '123456', # 数据库用户密码
@@ -89,7 +112,7 @@ DATABASES = {
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://192.168.145.173:6379/0",
+        "LOCATION": "redis://127.0.0.1:6379/0",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -179,3 +202,6 @@ LOGGING = {
         },
     }
 }
+
+#指定django默认扥用户模型为自定义的用户模型类
+AUTH_USER_MODEL = "users.User"
