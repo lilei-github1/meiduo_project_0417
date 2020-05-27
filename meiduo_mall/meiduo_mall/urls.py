@@ -14,8 +14,18 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path,include
+#总路由中注册路由装换器
+from django.urls import register_converter
+from meiduo_mall.utils import converters
+#
+register_converter(converters.UsernameConverter,'username')
+register_converter(converters.MobileConverter,'mobile')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('',include('app.user.urls')),
+    # path('usernames/<>/count/',include('apps.users.urls')),
+    path('',include('apps.verifications.urls')),
+
 ]
