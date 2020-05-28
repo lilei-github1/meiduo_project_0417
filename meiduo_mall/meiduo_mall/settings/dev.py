@@ -61,14 +61,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'apps.users',#用户模块
-    'corsheaders ',#解决跨域的,注册跨域的子应用
+    'corsheaders',#解决跨域的,注册跨域的子应用
+    'verifications',#验证模块
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',注释掉，保证非GET请求可以正常发送
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -78,9 +79,9 @@ MIDDLEWARE = [
 ]
 #添加跨域的白名单
 CORS_ORIGIN_WHITELIST  = [
-     "https://www.meiduo.site:8000",
-     "http：//localhost：8080",
-     "http://127.0.0.1:8080",
+     "http://www.meiduo.site:8080",
+    "http://127.0.0.1:8080",
+    "http://localhost:8080"
 ]
 #允许跨域时携带cookie
 CORS_ALLOW_CREDENTIALS = True
@@ -112,7 +113,7 @@ WSGI_APPLICATION = 'meiduo_mall.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # 数据库引擎
-        'HOST': '192.168.145.179', # 数据库主机
+        'HOST': '192.168.145.188', # 数据库主机
         'PORT': 3306, # 数据库端口
         'USER': 'itcast_0417', # 数据库用户名
         'PASSWORD': '123456', # 数据库用户密码
@@ -126,7 +127,24 @@ CACHES = {
         "LOCATION": "redis://127.0.0.1:6379/0",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
+        },
+        # 我的需求是希望将session存储在redis的1号库
+        "session": {  # session后端
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": "redis://192.168.103.100:6379/1",
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            }
+        },
+        "verify_code": {  # 验证码
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": "redis://192.168.103.100:6379/2",
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            }
+        },
+        # 将来还会继续在这里追加配置:用户浏览记录，购物车
+
     }
 }
 
