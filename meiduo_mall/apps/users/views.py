@@ -6,11 +6,17 @@ from django.contrib.auth import login
 from django_redis import get_redis_connection
 
 from apps.users.models import User
+
 # Create your views here.
 
 
 # 日志输出器
 logger = logging.getLogger('django')
+
+#用户登录 GET:http://www.meiduo.site:8000/login/
+class LoginView(View):
+    def get(self):
+        pass
 
 
 class RegisterView(View):
