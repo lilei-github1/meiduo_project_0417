@@ -23,9 +23,13 @@ register_converter(converters.UsernameConverter,'username')
 register_converter(converters.MobileConverter,'mobile')
 
 urlpatterns = [
+    # path('admin/', admin.site.urls),
+    # path('',include('apps.users.urls')),
+    # # path('usernames/<>/count/',include('apps.users.urls')),
+    # path('',include('apps.verifications.urls')),
     path('admin/', admin.site.urls),
-    path('',include('apps.users.urls')),
-    # path('usernames/<>/count/',include('apps.users.urls')),
-    path('',include('apps.verifications.urls')),
+
+    path('', include('apps.users.urls')),
+    path('', include('apps.verifications.urls')),
 
 ]

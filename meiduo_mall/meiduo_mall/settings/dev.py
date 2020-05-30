@@ -62,7 +62,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'apps.users',#用户模块
     'corsheaders',#解决跨域的,注册跨域的子应用
-    'verifications',#验证模块
+    'apps.verifications',#验证模块
 ]
 
 MIDDLEWARE = [
@@ -113,7 +113,7 @@ WSGI_APPLICATION = 'meiduo_mall.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # 数据库引擎
-        'HOST': '192.168.145.188', # 数据库主机
+        'HOST': '127.0.0.1', # 数据库主机
         'PORT': 3306, # 数据库端口
         'USER': 'itcast_0417', # 数据库用户名
         'PASSWORD': '123456', # 数据库用户密码
@@ -127,30 +127,29 @@ CACHES = {
         "LOCATION": "redis://127.0.0.1:6379/0",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
+        }
+    },
         # 我的需求是希望将session存储在redis的1号库
         "session": {  # session后端
             "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": "redis://192.168.103.100:6379/1",
+            "LOCATION": "redis://127.0.0.1:6379/1",
             "OPTIONS": {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
             }
         },
         "verify_code": {  # 验证码
             "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": "redis://192.168.103.100:6379/2",
+            "LOCATION": "redis://127.0.0.1:6379/2",
             "OPTIONS": {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
             }
         },
         # 将来还会继续在这里追加配置:用户浏览记录，购物车
-
-    }
 }
 
 #配置sesson后端
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"#修改redis存储为
-SESSION_CACHE_ALIAS = "default"#存储session数据是使用的配置别名
+SESSION_CACHE_ALIAS = "session"#存储session数据是使用的配置别名
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
