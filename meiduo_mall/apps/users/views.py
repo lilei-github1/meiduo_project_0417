@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views import View
 from django import http
 import logging, json, re
-from django.contrib.auth import login
+from django.contrib.auth import login,authenticate
 from django_redis import get_redis_connection
 
 from apps.users.models import User
@@ -15,8 +15,36 @@ logger = logging.getLogger('django')
 
 #用户登录 GET:http://www.meiduo.site:8000/login/
 class LoginView(View):
-    def get(self):
-        pass
+    def post(self,request):
+        """实现用户登录逻辑"""
+        #接收参数
+        json_dict = json.loads(request.body.decode())
+
+        username= json_dict.get('username')
+        password = json_dict.get('password')
+        remembered= json_dict.get('remembered')
+        # 校验参数
+        if not all([password,username]):
+            return http.JsonResponse({'code':400,'errmsg':'缺少必传参数'})
+        if not re.match(r'^[a-zA-Z0-9_-]{5,20}$',username):
+            return http.JsonResponse({'code':400,'errmsg':'参数username格式错误'})
+        if not re.match(r'^[a-zA-Z0-9_-]{5,20}$', password):
+            return http.JsonResponse({'code': 400, 'errmsg': '参数password格式错误'})
+
+        #实现核心逻辑
+        user = authenticate(request = request,username = username,password =password)
+        if not user:
+            return http.JsonResponse({'code': 400, 'errmsg': '用户名或密码错误'})
+
+        #实现状态保持
+        login(request,user)
+        #还需要根据remembered参数去设置状态保持的周期
+        if remembered:
+            request.session.set_expiry(None)
+        else:
+            request.session.set_expiry(0)
+        #响应结束
+        return http.JsonResponse({'code': 0, 'errmsg': 'OK'})
 
 
 class RegisterView(View):
@@ -33,7 +61,7 @@ class RegisterView(View):
         # json_dict = json.loads(request.body.decode())
 
         # 提取参数
-        username = json_dict.get('username')
+        account = json_dict.get('username')
         password = json_dict.get('password')
         password2 = json_dict.get('password2')
         mobile = json_dict.get('mobile')
@@ -64,6 +92,11 @@ class RegisterView(View):
         # 判断手机号是否满足项目的格式要求
         if not re.match(r'^1[3-9]\d{9}$', mobile):
             return http.JsonResponse({'code': 400, 'errmsg': '参数mobile有误'})
+        #实现多账号登录
+        if not re.match(r'^1[3-9]\d{9}',account):
+            User.USERNAME_FIELD = 'mobile'
+        else:
+            User.USERNAME_FIELD = 'username'
 
         # 判断短信验证码是否正确：跟图形验证码的验证一样的逻辑
         # 提取服务端存储的短信验证码：以前怎么存储，现在就怎么提取
@@ -84,11 +117,11 @@ class RegisterView(View):
         # 由于美多商城的用户模块完全依赖于Django自带的用户模型类
         # 所以用户相关的一切操作都需要调用Django自带的用户模型类提供的方法和属性
         # 其中就包括了保存用户的注册数据，Django自带的用户模型类提行了create_user()专门保存用户的注册数据
-        try:
-            user = User.objects.create_user(username=username, password=password, mobile=mobile)
-        except Exception as e:
-            logger.error(e)
-            return http.JsonResponse({'code': 400, 'errmsg': '注册失败'})
+
+        user = User.objects.create_user(username=username, password=account, mobile=mobile)
+        if user:
+
+            return http.JsonResponse({'code': 400, 'errmsg': '用户名或密码错误'})
 
         # 实现状态保持：因为美多商城的需求是注册成功即登录成功
         # 我们记住当前的用户登录过的，cookie机制(不选的)，session机制（OK）
