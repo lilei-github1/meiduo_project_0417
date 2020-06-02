@@ -4,14 +4,34 @@ from django import http
 import logging, json, re
 from django.contrib.auth import login,authenticate,logout
 from django_redis import get_redis_connection
-
 from apps.users.models import User
+from meiduo_mall.utils.views import LoginRequiredJSONMixin
+
 
 # Create your views here.
 
 
 # 日志输出器
 logger = logging.getLogger('django')
+
+class UserInfoView(LoginRequiredJSONMixin,View):
+    """用户中心
+    GET /info/
+    """
+
+    def get(self, request):
+        """实现用户中心数据展示"""
+        data_dict = {
+            'code': 0,
+            'errmsg': 'OK',
+            'info_data': {
+                'username': '',
+                'mobile': '',
+                'email': '',
+                'email_active': ''
+            }
+        }
+        return http.JsonResponse(data_dict)
 class LogoutView(View):
     """退出登录
     DELETE /logout/
@@ -32,65 +52,6 @@ class LogoutView(View):
         response.delete_cookie('username')
 
         return response
-# class LoginView(View):
-#     """用户登录
-#     GET /login/
-#     """
-#
-#     def post(self, request):
-#         """实现用户登录逻辑"""
-#         # 接收参数
-#         json_dict = json.loads(request.body.decode())
-#         # 该参数既可以是用户名，也可以是手机号
-#         account = json_dict.get('username')
-#         password = json_dict.get('password')
-#         # True、False == 可真可假，爱传不传
-#         remembered = json_dict.get('remembered')
-#
-#         # 校验参数
-#         if not all([account, password]):
-#             return http.JsonResponse({'code': 400, 'errmsg': '缺少必传参数'})
-#         # if not re.match(r'^[a-zA-Z0-9_-]{5,20}$', account):
-#         #     return http.JsonResponse({'code': 400, 'errmsg': '参数username格式错误'})
-#         if not re.match(r'^[0-9A-Za-z]{8,20}$', password):
-#             return http.JsonResponse({'code': 400, 'errmsg': '参数password格式错误'})
-#
-#         # 实现多账号登录
-#         # 判断用户输入的账号是用户名还是手机号
-#         if re.match(r'^1[3-9]\d{9}$', account):
-#             # 用户输入的账号是手机号:将USERNAME_FIELD指定为'mobile'字段
-#             User.USERNAME_FIELD = 'mobile'
-#         else:
-#             # 用户输入的账号是用户名:将USERNAME_FIELD指定为'username'字段
-#             User.USERNAME_FIELD = 'username'
-#
-#         # 认证登录用户核心思想：先使用用户名作为条件去用户表查询该记录是否存在，如果该用户名对应的记录存在，再去校验密码是否正确
-#         # 认证登录用户：Django的用户认证系统默认已经封装好了这个逻辑
-#         # 认证登录用户：仅仅是为了证明当前的用户是美多商城之前的注册用户，而且密码没错
-#         user = authenticate(request=request, username=account, password=password)
-#         # 判断用户认证是否成功
-#         if not user:
-#             return http.JsonResponse({'code': 400, 'errmsg': '用户名或密码错误'})
-#
-#         # 实现状态保持
-#         login(request, user)
-#         # 还需要根据remembered参数去设置状态保持的周期
-#         # 如果用户选择了记住登录，那么状态保持周期为两周。反之，浏览器会话结束状态保持就销毁
-#         if remembered:
-#             # 记住登录：状态保持周期为两周（就是去设置session数据的过期时间）
-#             # set_expiry(None)：Django封装好的，默认两周
-#             request.session.set_expiry(None)
-#             # request.session.set_expiry(14*24*3600)
-#         else:
-#             # 没有记住登录：浏览器会话结束状态保持就销毁
-#             request.session.set_expiry(0)
-#
-#         # 在登录成功后，将用户名写入到cookie，将来会在页面右上角展示
-#         response = http.JsonResponse({'code': 0, 'errmsg': '登录成功'})
-#         response.set_cookie('username', user.username, max_age=3600*24*14)
-#
-#         # 响应结果
-#         return response
 
 
 # 用户登录 GET:http://www.meiduo.site:8000/login/
