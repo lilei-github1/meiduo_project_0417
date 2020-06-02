@@ -17,4 +17,7 @@ urlpatterns = [
     path('register/', views.RegisterView.as_view()),
 #用户登录 GET:http://www.meiduo.site:8000/login/
     path('login/',views.LoginView.as_view()),
+# 退出登录：DELETE http://www.meiduo.site:8000/logout/
+    path('logout/', views.LogoutView.as_view()),
+
 ]
