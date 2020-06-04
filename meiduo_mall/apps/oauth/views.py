@@ -15,7 +15,24 @@ class QQUserView(View):
         code = request.GET.get('code')
         if not code:
             return http.JsonResponse({'code':400,'errmsg':'缺少code'})
-        pass
+
+        # 创建工具对象
+        oauth = OAuthQQ(client_id=settings.QQ_CLIENT_ID,
+                        client_secret=settings.QQ_CLIENT_SECRET,
+                        redirect_uri=settings.QQ_REDIRECT_URI)
+        try:
+            # 携带 code 向 QQ服务器 请求 access_token
+            access_token = oauth.get_access_token(code)
+
+            # 携带 access_token 向 QQ服务器 请求 openid
+            openid = oauth.get_open_id(access_token)
+
+        except Exception as e:
+            # 如果上面获取 openid 出错, 则验证失败
+            logger.error(e)
+            # 返回结果
+            return http.JsonResponse({'code': 400,'errmsg': 'oauth2.0认证失败, 即获取qq信息失败'})
+#         使用openid去判断当前的QQ用户是否已经绑定过美多商城的用户
 class QQURLView(View):
     """提供QQ登录页面网址"""
     # GET:/qq/authorization/
