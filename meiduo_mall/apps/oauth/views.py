@@ -3,6 +3,8 @@ from django.views import View
 from QQLoginTool.QQtool import OAuthQQ
 from django.conf import settings
 from django import http
+from django.contrib.auth import login
+from apps.oauth.models import OAuthQQUser
 # Create your views here.
 class QQUserView(View):
     """
@@ -29,10 +31,24 @@ class QQUserView(View):
 
         except Exception as e:
             # 如果上面获取 openid 出错, 则验证失败
-            logger.error(e)
+            # logger.error(e)
             # 返回结果
             return http.JsonResponse({'code': 400,'errmsg': 'oauth2.0认证失败, 即获取qq信息失败'})
 #         使用openid去判断当前的QQ用户是否已经绑定过美多商城的用户
+        try:
+
+            oauth_model = OAuthQQUser.objects.get(openid=openid)
+        except OAuthQQUser.DoesNoteExist:
+            pass
+        else:
+            # openid已绑定美多商城的用户：直接实现状态保持即可
+            # 提示：在实现QQ登录时，真正登录到美多商城的不是QQ用户，而是QQ用户绑定的美多商城用户
+            # login(request=request, user='跟openid绑定的美多商城的用户对象')
+            login(request = request,user=oauth_model.user)
+            response = http.JsonResponse({'code': 0, 'errmsg': 'ok'})
+            response.set_cookie('username',oauth_model.user.username,max_age=3600*24*14)
+            return response
+        pass
 class QQURLView(View):
     """提供QQ登录页面网址"""
     # GET:/qq/authorization/
