@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
-urlpattens = [
-    path('qq/authorization/',views.QQURLView.as_view())
+urlpatterns = [
+    path('qq/authorization/',views.QQURLView.as_view()),
+    path('oauth_callback/',views.QQUserView.as_view()),
 ]

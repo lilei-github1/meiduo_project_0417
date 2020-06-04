@@ -234,3 +234,9 @@ LOGGING = {
 
 #指定django默认扥用户模型为自定义的用户模型类
 AUTH_USER_MODEL = "users.User"
+
+
+# QQ登录参数
+QQ_CLIENT_ID = '101474184' # 我们申请的 客户端id
+QQ_CLIENT_SECRET = 'c6ce949e04e12ecc909ae6a8b09b637c' # 我们申请的 客户端秘钥
+QQ_REDIRECT_URI = 'http://www.meiduo.site:8080/oauth_callback.html' # 登录成功后回调的路径
