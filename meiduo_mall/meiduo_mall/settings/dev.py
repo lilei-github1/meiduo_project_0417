@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'apps.users',#用户模块
     'corsheaders',#解决跨域的,注册跨域的子应用
     'apps.verifications',#验证模块
+    'apps.oauth',#第三方登录
 ]
 
 MIDDLEWARE = [
