@@ -5,6 +5,7 @@ from django.conf import settings
 from django import http
 from django.contrib.auth import login
 from apps.oauth.models import OAuthQQUser
+from apps.oauth.utils import generate_access_token_openid, check_access_token_openid
 # Create your views here.
 class QQUserView(View):
     """
@@ -37,9 +38,15 @@ class QQUserView(View):
 #         使用openid去判断当前的QQ用户是否已经绑定过美多商城的用户
         try:
 
+            # oauth_model = OAuthQQUser.objects.get(openid=openid)
             oauth_model = OAuthQQUser.objects.get(openid=openid)
-        except OAuthQQUser.DoesNoteExist:
-            pass
+        except Exception:
+            # openid未绑定美多商城的用户：将用户引导到绑定用户的页面
+            # 重要提示：工作中，会规定很多的状态码，而每个状态码都对应一种操作结果
+            # 提示：在美多商城里面如果QQ用户未绑定美多商城的用户，通过状态码300告诉前端，让他根据需求文档做响应的处理
+            # 提示：为了简单处理，我们将openid还给用户自己保存，将来在绑定用户时，前端再传给我们即可
+            access_token_openid = generate_access_token_openid(openid)
+            return http.JsonResponse({'code': 300, 'errmsg': '用户未绑定的', 'access_token': access_token_openid})
         else:
             # openid已绑定美多商城的用户：直接实现状态保持即可
             # 提示：在实现QQ登录时，真正登录到美多商城的不是QQ用户，而是QQ用户绑定的美多商城用户

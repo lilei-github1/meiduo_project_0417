@@ -1,6 +1,13 @@
 from django.urls import path
 from . import views
+# urlpatterns = [
+#     path('qq/authorization/',views.QQURLView.as_view()),
+#     path('oauth_callback/',views.QQUserView.as_view()),
+# ]
 urlpatterns = [
-    path('qq/authorization/',views.QQURLView.as_view()),
-    path('oauth_callback/',views.QQUserView.as_view()),
+    # QQ登录扫码链接: GET /qq/authorization/
+    path('qq/authorization/', views.QQURLView.as_view()),
+
+    # 处理授权后的回调:GET /oauth_callback/
+    path('oauth_callback/', views.QQUserView.as_view()),
 ]
