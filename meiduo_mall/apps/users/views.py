@@ -19,7 +19,23 @@ class EmailView(LoginRequiredJSONMixin,View):
     '''添加邮箱'''
     def put(self,request):
         '''实现添加邮箱的逻辑'''
-        pass
+        #接收参数
+        json_dict = json.loads(request.body.decode())
+        email = json_dict.get('email')
+        # 校验参数
+        if not email:
+            return http.JsonResponse({'code':400,'errmsg':'缺少必传参数'})
+        if not re.match(r'^[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$', email):
+            return http.JsonResponse({'code':400,'errmsg':'参数email格式错误'})
+
+        # 实现核心逻辑
+        try:
+            request.user.email = email
+            request.user.save()
+        except Exception as e:
+            logger.error(e)
+            return http.JsonResponse({'code':400,'errmsg':'添加邮箱失败'})
+        return http.JsonResponse({'code':0,'errmsg':'OK'})
 
 class UserInfoView(LoginRequiredJSONMixin,View):
     """用户中心
