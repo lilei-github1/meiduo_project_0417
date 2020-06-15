@@ -21,5 +21,7 @@ urlpatterns = [
     path('logout/', views.LogoutView.as_view()),
 # 用户中心：GET http://www.meiduo.site:8000/info/
     path('info/', views.UserInfoView.as_view()),
+# 添加有相关：GET http://www.meiduo.site:8000/emails/
+    path('emails/',views.EmailView.as_view()),
 
 ]

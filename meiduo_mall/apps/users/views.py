@@ -14,6 +14,13 @@ from meiduo_mall.utils.views import LoginRequiredJSONMixin
 # 日志输出器
 logger = logging.getLogger('django')
 
+
+class EmailView(LoginRequiredJSONMixin,View):
+    '''添加邮箱'''
+    def put(self,request):
+        '''实现添加邮箱的逻辑'''
+        pass
+
 class UserInfoView(LoginRequiredJSONMixin,View):
     """用户中心
     GET /info/
@@ -25,10 +32,10 @@ class UserInfoView(LoginRequiredJSONMixin,View):
             'code': 0,
             'errmsg': 'OK',
             'info_data': {
-                'username': '',
-                'mobile': '',
-                'email': '',
-                'email_active': ''
+                'username': request.user.username,
+                'mobile': request.user.mobile,
+                'email': request.user.email,
+                'email_active': request.user.email_active
             }
         }
         return http.JsonResponse(data_dict)
