@@ -7,6 +7,7 @@ from django_redis import get_redis_connection
 from apps.users.models import User
 from meiduo_mall.utils.views import LoginRequiredJSONMixin
 from celery_tasks.email.tasks import send_email_verify_url
+from apps.users.utils import generate_email_verify_url
 
 # Create your views here.
 
@@ -35,7 +36,7 @@ class EmailView(LoginRequiredJSONMixin,View):
         except Exception as e:
             logger.error(e)
             return http.JsonResponse({'code':400,'errmsg':'添加邮箱失败'})
-        verify_url = '测试链接'
+        verify_url = generate_email_verify_url(user=request.user)
         send_email_verify_url.delay(email,verify_url)
         return http.JsonResponse({'code':0,'errmsg':'OK'})
 
