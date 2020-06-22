@@ -5,11 +5,39 @@ import logging, json, re
 from django.contrib.auth import login,authenticate,logout
 from django_redis import get_redis_connection
 from apps.users.models import User
-from meiduo_mall.utils.views import LoginRequiredJSONMixin
 from celery_tasks.email.tasks import send_email_verify_url
-from apps.users.utils import generate_email_verify_url
+from meiduo_mall.utils.views import LoginRequiredJSONMixin
+from apps.users.utils import generate_email_verify_url,check_email_verify_url
 
 # Create your views here.
+class EmailActiveView(View):
+    """验证激活邮箱
+    PUT /emails/verification/
+    """
+
+    def put(self, request):
+        """实现验证激活邮箱的逻辑"""
+        # 接收参数
+        token = request.GET.get('token')
+
+        # 校验参数
+        if not token:
+            return http.JsonResponse({'code': 400, 'errmsg': '缺少token'})
+
+        # 实现核心逻辑
+        # 通过token提取要验证邮箱的用户
+        user = check_email_verify_url(token=token)
+        # 将要验证邮箱的用户的email_active字段设置True
+        try:
+            user.email_active = True
+            user.save()
+        except Exception as e:
+            logger.error(e)
+            return http.JsonResponse({'code': 400, 'errmsg': '邮箱验证失败'})
+
+        # 响应结果
+        return http.JsonResponse({'code': 0, 'errmsg': '邮箱验证成功'})
+
 
 
 # 日志输出器
@@ -36,9 +64,12 @@ class EmailView(LoginRequiredJSONMixin,View):
         except Exception as e:
             logger.error(e)
             return http.JsonResponse({'code':400,'errmsg':'添加邮箱失败'})
+        # 发送邮箱的验证激活邮件：耗时操作，不能让他阻塞主逻辑，需要从主逻辑中解耦出来，celery
         verify_url = generate_email_verify_url(user=request.user)
-        send_email_verify_url.delay(email,verify_url)
-        return http.JsonResponse({'code':0,'errmsg':'OK'})
+        send_email_verify_url.delay(email, verify_url)
+
+        # 响应结果
+        return http.JsonResponse({'code': 0, 'errmsg': 'OK'})
 
 class UserInfoView(LoginRequiredJSONMixin,View):
     """用户中心
